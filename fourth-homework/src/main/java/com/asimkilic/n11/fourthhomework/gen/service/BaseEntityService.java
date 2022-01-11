@@ -16,7 +16,7 @@ public abstract class BaseEntityService<E extends BaseEntity,D extends JpaReposi
         return dao.findAll();
     }
 
-    public Optional<E> findById(Long id){
+    public Optional<E> findById(String id){
         return dao.findById(id);
     }
 
