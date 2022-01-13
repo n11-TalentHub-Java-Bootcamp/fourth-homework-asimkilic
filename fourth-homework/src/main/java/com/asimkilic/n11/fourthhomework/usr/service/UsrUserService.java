@@ -20,15 +20,13 @@ public class UsrUserService {
     private final UsrUserEntityService usrUserEntityService;
 
     protected UsrUser findUsrUserEntityById(String id) {
-        UsrUser usrUserById = usrUserEntityService.findById(id)
+        return usrUserEntityService.findById(id)
                 .orElseThrow(() -> new UsrUserNotFoundException("User could not find by id : " + id));
-        return usrUserById;
     }
 
     protected UsrUser findUsrUserEntityByTckn(Long tckn) {
-        UsrUser usrUserByTckn = usrUserEntityService.findByTckn(tckn)
+        return usrUserEntityService.findByTckn(tckn)
                 .orElseThrow(() -> new UsrUserNotFoundException("User could not find by TCKN : " + tckn));
-        return usrUserByTckn;
     }
 
     protected boolean isCellPhoneRegistered(String cellPhone) {
@@ -42,8 +40,7 @@ public class UsrUserService {
     public List<UsrUserDto> findAllUsrUsers() {
         List<UsrUser> usrUserList = usrUserEntityService.findAll();
 
-        List<UsrUserDto> usrUserDtoList = INSTANCE.convertToUsrUserDtoList(usrUserList);
-        return usrUserDtoList;
+        return INSTANCE.convertToUsrUserDtoList(usrUserList);
     }
 
     public UsrUserDto findUsrUserById(String id) {
@@ -75,8 +72,7 @@ public class UsrUserService {
         }
         UsrUser usrUser = INSTANCE.convertToUsrUser(userSaveRequestDto);
         usrUser = usrUserEntityService.save(usrUser);
-        UsrUserDto usrUserDto = INSTANCE.convertToUsrUserDto(usrUser);
-        return usrUserDto;
+        return INSTANCE.convertToUsrUserDto(usrUser);
     }
 
     public void deleteUsrUserById(String id) {
