@@ -1,5 +1,6 @@
 package com.asimkilic.n11.fourthhomework.exception;
 
+import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtFallDueOnCantBeforeNowException;
 import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserCellPhoneAlreadyRegisteredException;
 import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserNotFoundException;
 import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserTcknAlreadyRegisteredException;
@@ -54,4 +55,11 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> usrUserTcknAlreadyRegisteredException(UsrUserTcknAlreadyRegisteredException exception) {
         return new ResponseEntity<>(exception.getMessage(), CONFLICT);
     }
+
+
+    @ExceptionHandler(DbtDebtFallDueOnCantBeforeNowException.class)
+    public ResponseEntity<?> dbtDebtFallDueOnCantBeforeNowException(DbtDebtFallDueOnCantBeforeNowException exception) {
+        return new ResponseEntity<>(exception.getMessage(), BAD_REQUEST);
+    }
 }
+

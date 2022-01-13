@@ -20,7 +20,7 @@ public class UsrUserSaveRequestDto {
     @NotNull(message = "İsim boş olamaz")
     private String firstName;
 
-    @NotNull(message = "Soy isim boş olamaz")
+    @NotNull(message = "Soyisim boş olamaz")
     private String lastName;
 
     @NotNull

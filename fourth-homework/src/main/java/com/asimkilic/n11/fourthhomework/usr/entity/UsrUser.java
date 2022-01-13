@@ -1,5 +1,6 @@
 package com.asimkilic.n11.fourthhomework.usr.entity;
 
+import com.asimkilic.n11.fourthhomework.dbt.entity.DbtDebt;
 import com.asimkilic.n11.fourthhomework.gen.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,12 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "USR_USER")
@@ -20,7 +21,7 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsrUser implements BaseEntity {
+public class UsrUser implements Serializable,BaseEntity {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -43,6 +44,8 @@ public class UsrUser implements BaseEntity {
 
     private String cellPhone;
 
+    @OneToMany(mappedBy ="usrUser",fetch = FetchType.LAZY)
+    private Set<DbtDebt> debts = new HashSet<>();
 
 
 }
