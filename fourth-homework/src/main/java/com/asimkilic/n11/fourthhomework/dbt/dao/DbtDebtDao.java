@@ -18,6 +18,7 @@ public interface DbtDebtDao extends JpaRepository<DbtDebt, String> {
 
     List<DbtDebt> findAllByUsrUser_IdAndRemainingDebtGreaterThan(String userId, BigDecimal debtGreaterThan);
     List<DbtDebt> findAllByUsrUser_IdAndFallDueOnBeforeAndRemainingDebtGreaterThan(String userId,LocalDateTime onBefore,BigDecimal remainingDebtGreaterThan);
+
     @Query(
             value = "select count(*) from usr_user u where u.id= :userId",
             nativeQuery = true)

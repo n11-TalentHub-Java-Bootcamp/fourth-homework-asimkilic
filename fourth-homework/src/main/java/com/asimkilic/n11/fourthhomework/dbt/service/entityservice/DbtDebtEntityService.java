@@ -30,4 +30,5 @@ public class DbtDebtEntityService extends BaseEntityService<DbtDebt, DbtDebtDao>
     public List<DbtDebt> findAllUnpaidOverdueDbtDebtByUserId(String usrUserId, LocalDateTime localDateTimeNow) {
          return getDao().findAllByUsrUser_IdAndFallDueOnBeforeAndRemainingDebtGreaterThan(usrUserId, localDateTimeNow,BigDecimal.ZERO);
     }
+
 }

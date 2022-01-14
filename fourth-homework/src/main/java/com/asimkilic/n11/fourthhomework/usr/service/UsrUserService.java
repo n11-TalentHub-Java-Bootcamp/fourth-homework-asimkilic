@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.asimkilic.n11.fourthhomework.usr.converter.UsrUserMapper.INSTANCE;
 
@@ -38,9 +39,11 @@ public class UsrUserService {
     }
 
     public List<UsrUserDto> findAllUsrUsers() {
-        List<UsrUser> usrUserList = usrUserEntityService.findAll();
-
-        return INSTANCE.convertToUsrUserDtoList(usrUserList);
+        return usrUserEntityService
+                .findAll()
+                .stream()
+                .map(INSTANCE::convertToUsrUserDto)
+                .collect(Collectors.toList());
     }
 
     public UsrUserDto findUsrUserById(String id) {
@@ -76,13 +79,13 @@ public class UsrUserService {
     }
 
     public void deleteUsrUserById(String id) {
-        // TODO: Borcu olan kullanıcı silinemez
+
         UsrUser usrUserById = findUsrUserEntityById(id);
         usrUserEntityService.delete(usrUserById);
     }
 
     public void deleteUsrUserByTckn(Long tckn) {
-        // TODO: Borcu olan kullanıcı silinemez
+
         UsrUser usrUserById = findUsrUserEntityByTckn(tckn);
         usrUserEntityService.delete(usrUserById);
     }

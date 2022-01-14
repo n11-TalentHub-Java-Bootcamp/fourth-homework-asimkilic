@@ -107,6 +107,30 @@ public class DbtDebtService {
 
     }
 
+    public BigDecimal findUnpaidOverdueTotalDbtDebtsByUserId(String usrUserId) {
+        checkIsUsrUserExist(usrUserId);
+
+        return dbtDebtEntityService
+                .findAllUnpaidOverdueDbtDebtByUserId(usrUserId, getLocalDateTimeNow())
+                .stream()
+                .map(INSTANCE::convertToDbtDebtDto)
+                .map(this::calculateTotalDebt)
+                .map(DbtDebtDto::getTotalDebt)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    }
+
+    public BigDecimal findCurrentLateFeesTotalDbtDebtsByUserId(String usrUserId) {
+        checkIsUsrUserExist(usrUserId);
+
+        return dbtDebtEntityService
+                .findAllUnpaidOverdueDbtDebtByUserId(usrUserId, getLocalDateTimeNow())
+                .stream()
+                .map(INSTANCE::convertToDbtDebtDto)
+                .map(this::calculateTotalDebt)
+                .map(DbtDebtDto::getLateFeeDebt)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    }
+
     private LocalDateTime getLocalDateTimeNow() {
         // Test edilebilirlik için
         Instant instant = clock.instant();

@@ -59,6 +59,18 @@ public class DbtDebtController {
         BigDecimal totalDebt = dbtDebtService.findUnpaidTotalDbtDebtsByUserId(usrUserId);
         return ResponseEntity.ok(totalDebt);
     }
+    @GetMapping("/user/total/overdue")
+    @Operation(summary = "Belirtilen kullanıcının vadesi geçmiş ödenmemiş borçların toplamını döndürür.")
+    public ResponseEntity<BigDecimal> getUnpaidOverdueTotalDbtDebtsByUserId(@Parameter(name = "usrUserId", description = "Borcu sorgulanacak kişi id") String usrUserId) {
+        BigDecimal totalDebt = dbtDebtService.findUnpaidOverdueTotalDbtDebtsByUserId(usrUserId);
+        return ResponseEntity.ok(totalDebt);
+    }
+    @GetMapping("/user/total/latefee")
+    @Operation(summary = "Belirtilen kullanıcının sorgulama anına ait gecikme zammı toplamını döndürür.")
+    public ResponseEntity<BigDecimal> getCurrentLateFeesTotalDbtDebtsByUserId(@Parameter(name = "usrUserId", description = "Borcu sorgulanacak kişi id") String usrUserId) {
+        BigDecimal totalDebt = dbtDebtService.findCurrentLateFeesTotalDbtDebtsByUserId(usrUserId);
+        return ResponseEntity.ok(totalDebt);
+    }
 
     @PostMapping
     @Operation(summary = "Yeni borç kaydeder, gecikme borcu kaydetmek için kullanılmaz")
