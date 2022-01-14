@@ -1,19 +1,22 @@
 package com.asimkilic.n11.fourthhomework.dbt.service;
 
-import com.asimkilic.n11.fourthhomework.dbt.converter.DbtDebtMapper;
 import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtBeetweenDatesRequestDto;
 import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtDto;
+import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtLateFeeSaveRequestDto;
 import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtSaveRequestDto;
 import com.asimkilic.n11.fourthhomework.dbt.entity.DbtDebt;
 import com.asimkilic.n11.fourthhomework.dbt.enums.EnumDebtType;
 import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtFallDueOnCantBeforeNowException;
 import com.asimkilic.n11.fourthhomework.dbt.service.entityservice.DbtDebtEntityService;
 import com.asimkilic.n11.fourthhomework.gen.LateFees;
-import com.asimkilic.n11.fourthhomework.usr.dto.UsrUserDto;
+import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentDebtCouldNotFoundException;
+import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentPriceNotEqualToDebtException;
 import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserNotFoundException;
 import com.asimkilic.n11.fourthhomework.usr.service.UsrUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.asimkilic.n11.fourthhomework.dbt.converter.DbtDebtMapper.INSTANCE;
 
@@ -32,9 +34,9 @@ import static com.asimkilic.n11.fourthhomework.dbt.converter.DbtDebtMapper.INSTA
 @RequiredArgsConstructor
 public class DbtDebtService {
     private final DbtDebtEntityService dbtDebtEntityService;
-    private final UsrUserService usrUserService;
     private final Clock clock;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public DbtDebtDto saveDbtDebt(DbtDebtSaveRequestDto saveRequestDto) {
         if (saveRequestDto.getFallDueOn().isBefore(getLocalDateTimeNow())) {
             throw new DbtDebtFallDueOnCantBeforeNowException("Vade tarihi geçmiş gün olamaz.");
@@ -48,7 +50,34 @@ public class DbtDebtService {
         dbtDebt = dbtDebtEntityService.save(dbtDebt);
 
         return INSTANCE.convertToDbtDebtDto(dbtDebt);
+    }
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public DbtDebtDto savePaidLateFeeDbtDebt(DbtDebtLateFeeSaveRequestDto debtLateFeeSaveRequestDto) {
+        DbtDebt dbtDebtEntity = INSTANCE.convertToDbtDebt(debtLateFeeSaveRequestDto);
+        dbtDebtEntity.setRemainingDebt(BigDecimal.ZERO);
+        dbtDebtEntity.setDebtType(EnumDebtType.LATE_FEE);
+        dbtDebtEntity.setCreationDate(getLocalDateTimeNow());
+        dbtDebtEntity = dbtDebtEntityService.save(dbtDebtEntity);
+        return INSTANCE.convertToDbtDebtDto(dbtDebtEntity);
 
+    }
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public String resetRemaningDebt(String debtId) {
+        DbtDebt debt = dbtDebtEntityService
+                .findById(debtId)
+                .orElseThrow(() -> new PayPaymentDebtCouldNotFoundException("Id'ye ait borç bulunamadı. ID: " + debtId));
+        debt.setRemainingDebt(BigDecimal.ZERO);
+        dbtDebtEntityService.save(debt);
+
+        return debt.getId();
+    }
+
+    public DbtDebtDto findUnpaidDbtDebtByDebtIdForPaymentService(String dbtDebtId) {
+        DbtDebt unpaidDbtDebtEntity = dbtDebtEntityService.findUnpaidDbtDebtByDebtIdForPaymentService(dbtDebtId);
+        DbtDebtDto dbtDebtDto = INSTANCE.convertToDbtDebtDto(unpaidDbtDebtEntity);
+        calculateTotalDebt(dbtDebtDto);
+
+        return dbtDebtDto;
     }
 
     public List<DbtDebtDto> findAllDbtDebt() {
@@ -180,6 +209,4 @@ public class DbtDebtService {
         }
 
     }
-
-
 }

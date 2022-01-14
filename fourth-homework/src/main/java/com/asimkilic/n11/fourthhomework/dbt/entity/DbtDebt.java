@@ -2,7 +2,7 @@ package com.asimkilic.n11.fourthhomework.dbt.entity;
 
 import com.asimkilic.n11.fourthhomework.dbt.enums.EnumDebtType;
 import com.asimkilic.n11.fourthhomework.gen.entity.BaseEntity;
-import com.asimkilic.n11.fourthhomework.pay.service.PayPaymentService;
+import com.asimkilic.n11.fourthhomework.pay.entity.PayPayment;
 import com.asimkilic.n11.fourthhomework.usr.entity.UsrUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,7 +54,7 @@ public class DbtDebt implements Serializable, BaseEntity {
 
 
     @OneToMany(mappedBy ="dbtDebt",fetch = FetchType.LAZY)
-    private Set<PayPaymentService> payments = new HashSet<>();
+    private Set<PayPayment> payments = new HashSet<>();
 
 
 }

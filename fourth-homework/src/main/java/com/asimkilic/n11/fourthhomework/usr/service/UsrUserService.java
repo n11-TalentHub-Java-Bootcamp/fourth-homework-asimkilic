@@ -9,6 +9,8 @@ import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserTcknAlreadyRegister
 import com.asimkilic.n11.fourthhomework.usr.service.entityservice.UsrUserEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +67,7 @@ public class UsrUserService {
                 .orElseThrow(() -> new UsrUserNotFoundException("User could not find by username : " + username));
         return INSTANCE.convertToUsrUserDto(usrUserByUsername);
     }
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public UsrUserDto saveUsrUser(UsrUserSaveRequestDto userSaveRequestDto) {
         if (isCellPhoneRegistered(userSaveRequestDto.getCellPhone())) {
             throw new UsrUserCellPhoneAlreadyRegisteredException(userSaveRequestDto.getCellPhone() + " telefon numarası zaten kayıtlı.");
