@@ -2,6 +2,7 @@ package com.asimkilic.n11.fourthhomework.dbt.entity;
 
 import com.asimkilic.n11.fourthhomework.dbt.enums.EnumDebtType;
 import com.asimkilic.n11.fourthhomework.gen.entity.BaseEntity;
+import com.asimkilic.n11.fourthhomework.pay.service.PayPaymentService;
 import com.asimkilic.n11.fourthhomework.usr.entity.UsrUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "DBT_DEBT")
@@ -49,6 +52,9 @@ public class DbtDebt implements Serializable, BaseEntity {
 
     private LocalDateTime fallDueOn;  // vade tarihi
 
-    //TODO : işlemi yapan eklenecek.
+
+    @OneToMany(mappedBy ="dbtDebt",fetch = FetchType.LAZY)
+    private Set<PayPaymentService> payments = new HashSet<>();
+
 
 }
