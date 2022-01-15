@@ -1,6 +1,7 @@
 package com.asimkilic.n11.fourthhomework.exception;
 
 import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtFallDueOnCantBeforeNowException;
+import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtNotFoundException;
 import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentDebtCouldNotFoundException;
 import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentPriceNotEqualToDebtException;
 import com.asimkilic.n11.fourthhomework.usr.exception.UsrUserCellPhoneAlreadyRegisteredException;
@@ -64,6 +65,10 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exception.getMessage(), BAD_REQUEST);
     }
 
+    @ExceptionHandler(DbtDebtNotFoundException.class)
+    public ResponseEntity<?> DbtDebtNotFoundException(DbtDebtNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(), NOT_FOUND);
+    }
     @ExceptionHandler(PayPaymentDebtCouldNotFoundException.class)
     public ResponseEntity<?> payPaymentDebtCouldNotFoundException(PayPaymentDebtCouldNotFoundException exception) {
         return new ResponseEntity<>(exception.getMessage(), NOT_FOUND);
@@ -73,5 +78,6 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> payPaymentPriceNotEqualToDebtException(PayPaymentPriceNotEqualToDebtException exception) {
         return new ResponseEntity<>(exception.getMessage(), BAD_REQUEST);
     }
+
 }
 

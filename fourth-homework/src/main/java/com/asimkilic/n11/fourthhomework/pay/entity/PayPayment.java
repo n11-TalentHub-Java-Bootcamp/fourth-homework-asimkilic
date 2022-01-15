@@ -2,6 +2,7 @@ package com.asimkilic.n11.fourthhomework.pay.entity;
 
 import com.asimkilic.n11.fourthhomework.dbt.entity.DbtDebt;
 import com.asimkilic.n11.fourthhomework.gen.entity.BaseEntity;
+import com.asimkilic.n11.fourthhomework.usr.entity.UsrUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,10 @@ public class PayPayment implements Serializable, BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dbt_debt_id", nullable = false)
     private DbtDebt dbtDebt; //bağlı borç id
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="usr_user_id",nullable = false)
+    private UsrUser usrUser;
 
     @Column(updatable = false,precision = 11,scale = 2)
     private BigDecimal payPayedPrice;

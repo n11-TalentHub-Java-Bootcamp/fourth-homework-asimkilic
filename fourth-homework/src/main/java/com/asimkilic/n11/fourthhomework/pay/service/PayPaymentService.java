@@ -4,19 +4,24 @@ import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtDto;
 import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtLateFeeSaveRequestDto;
 import com.asimkilic.n11.fourthhomework.dbt.entity.DbtDebt;
 import com.asimkilic.n11.fourthhomework.dbt.service.DbtDebtService;
+import com.asimkilic.n11.fourthhomework.gen.LateFees;
+import com.asimkilic.n11.fourthhomework.pay.dto.PayPaymentBetweenDatesRequestDto;
 import com.asimkilic.n11.fourthhomework.pay.dto.PayPaymentDto;
 import com.asimkilic.n11.fourthhomework.pay.dto.PayPaymentSaveRequestDto;
 import com.asimkilic.n11.fourthhomework.pay.entity.PayPayment;
 import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentDebtCouldNotFoundException;
 import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentPriceNotEqualToDebtException;
 import com.asimkilic.n11.fourthhomework.pay.service.entityservice.PayPaymentEntityService;
+import com.asimkilic.n11.fourthhomework.usr.entity.UsrUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +47,24 @@ public class PayPaymentService {
                 .collect(Collectors.toList());
     }
 
+    public List<PayPaymentDto> findAllPayPaymentByUserId(String id) {
+        return payPaymentEntityService
+                .findAllByUserId(id)
+                .stream()
+                .map(INSTANCE::convertToPayPaymentDto)
+                .collect(Collectors.toList());
+    }
+
+    public BigDecimal findTotalLateFeePayPaymentByUserId(String usrUserId) {
+        return payPaymentEntityService
+                .findAllByUserId(usrUserId)
+                .stream()
+                .map(INSTANCE::convertToPayPaymentDto)
+                .filter(x -> x.getDbtDebtDto().getDbtDebtId() != null)
+                .map(PayPaymentDto::getPayedPrice)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public PayPaymentDto savePayPayment(PayPaymentSaveRequestDto payPaymentSaveRequestDto) {
         DbtDebtDto unpaidDbtDto = dbtDebtService.findUnpaidDbtDebtByDebtIdForPaymentService(payPaymentSaveRequestDto.getDebtId());
@@ -57,8 +80,11 @@ public class PayPaymentService {
         String paidDebtId = dbtDebtService.resetRemaningDebt(payPaymentSaveRequestDto.getDebtId());
         DbtDebt dbtDebt = new DbtDebt();
         dbtDebt.setId(paidDebtId);
+        UsrUser usrUser = new UsrUser();
+        usrUser.setId(unpaidDbtDto.getUsrUserId());
         // sıfırlanan miktar kadar tahsilat kaydı gir
         PayPayment payPayment = new PayPayment();
+        payPayment.setUsrUser(usrUser);
         payPayment.setCreationDate(getLocalDateTimeNow());
         payPayment.setPayPayedPrice(unpaidDbtDto.getRemainingDebt());
         payPayment.setDbtDebt(dbtDebt);
@@ -78,6 +104,7 @@ public class PayPaymentService {
             DbtDebt dbtDebtForLateFee = new DbtDebt();
             dbtDebtForLateFee.setId(lateFeeDbtDebt.getId());
             payPaymentLateFee.setDbtDebt(dbtDebtForLateFee);
+            payPaymentLateFee.setUsrUser(usrUser);
             payPaymentEntityService.save(payPaymentLateFee);
 
         }
@@ -85,9 +112,23 @@ public class PayPaymentService {
         return INSTANCE.convertToPayPaymentDto(payPayment);
     }
 
+    public List<PayPaymentDto> findAllPaymentsBetweenDates(PayPaymentBetweenDatesRequestDto payPaymentBetweenDatesRequestDto) {
+        return payPaymentEntityService
+                .findAllPaymentsBetweenDates(
+                        payPaymentBetweenDatesRequestDto.getStartDate(),
+                        payPaymentBetweenDatesRequestDto.getEndDate()
+                )
+                .stream()
+                .map(INSTANCE::convertToPayPaymentDto)
+                .collect(Collectors.toList());
+    }
+
+
     private LocalDateTime getLocalDateTimeNow() {
         // Test edilebilirlik için
         Instant instant = clock.instant();
         return LocalDateTime.ofInstant(instant, Clock.systemDefaultZone().getZone());
     }
+
+
 }

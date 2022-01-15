@@ -7,6 +7,7 @@ import com.asimkilic.n11.fourthhomework.dbt.dto.DbtDebtSaveRequestDto;
 import com.asimkilic.n11.fourthhomework.dbt.entity.DbtDebt;
 import com.asimkilic.n11.fourthhomework.dbt.enums.EnumDebtType;
 import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtFallDueOnCantBeforeNowException;
+import com.asimkilic.n11.fourthhomework.dbt.exception.DbtDebtNotFoundException;
 import com.asimkilic.n11.fourthhomework.dbt.service.entityservice.DbtDebtEntityService;
 import com.asimkilic.n11.fourthhomework.gen.LateFees;
 import com.asimkilic.n11.fourthhomework.pay.exception.PayPaymentDebtCouldNotFoundException;
@@ -51,6 +52,7 @@ public class DbtDebtService {
 
         return INSTANCE.convertToDbtDebtDto(dbtDebt);
     }
+
     @Transactional(propagation = Propagation.SUPPORTS)
     public DbtDebtDto savePaidLateFeeDbtDebt(DbtDebtLateFeeSaveRequestDto debtLateFeeSaveRequestDto) {
         DbtDebt dbtDebtEntity = INSTANCE.convertToDbtDebt(debtLateFeeSaveRequestDto);
@@ -61,6 +63,7 @@ public class DbtDebtService {
         return INSTANCE.convertToDbtDebtDto(dbtDebtEntity);
 
     }
+
     @Transactional(propagation = Propagation.SUPPORTS)
     public String resetRemaningDebt(String debtId) {
         DbtDebt debt = dbtDebtEntityService
@@ -74,6 +77,9 @@ public class DbtDebtService {
 
     public DbtDebtDto findUnpaidDbtDebtByDebtIdForPaymentService(String dbtDebtId) {
         DbtDebt unpaidDbtDebtEntity = dbtDebtEntityService.findUnpaidDbtDebtByDebtIdForPaymentService(dbtDebtId);
+        if (unpaidDbtDebtEntity == null) {
+            throw new DbtDebtNotFoundException("Bu borç id'sine ait kayıt bulunamadı. Id: " + dbtDebtId);
+        }
         DbtDebtDto dbtDebtDto = INSTANCE.convertToDbtDebtDto(unpaidDbtDebtEntity);
         calculateTotalDebt(dbtDebtDto);
 
