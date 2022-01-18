@@ -11,6 +11,7 @@ import javax.validation.constraints.*;
 public class UsrUserSaveRequestDto {
     @NotNull
     @Size(min=6,max = 20,message = "Kullanıcı adı en az 6 en fazla 20 karakter olmalıdır")
+    @Schema(example = "asimkilic")
     private String username;
 
     @NotNull

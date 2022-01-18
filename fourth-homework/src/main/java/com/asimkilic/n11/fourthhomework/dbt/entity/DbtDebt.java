@@ -44,13 +44,14 @@ public class DbtDebt implements Serializable, BaseEntity {
     @Column(precision = 11,scale = 2)
     private BigDecimal remainingDebt; //kalan borç
 
+    @Enumerated(EnumType.STRING)
     private EnumDebtType debtType; //borç türü
 
     @Column(nullable = false)
     private LocalDateTime creationDate; //oluşturulma zamanı
 
 
-    private LocalDateTime fallDueOn;  // vade tarihi
+    private LocalDateTime fallDueOn;  // vade tarihi       2 2018  1,5
 
 
     @OneToMany(mappedBy ="dbtDebt",fetch = FetchType.LAZY)

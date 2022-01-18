@@ -190,10 +190,13 @@ public class DbtDebtService {
     private DbtDebtDto calculateTotalDebt(DbtDebtDto debt) {
 
         debt.setTotalDebt(debt.getRemainingDebt());
-        if (debt.getFallDueOn().isBefore(getLocalDateTimeNow())) {
-            debt.setTotalDebt(debt.getTotalDebt().add(calculateLateFee(debt.getFallDueOn())));
+
+        if (debt.getRemainingDebt().compareTo(BigDecimal.ZERO) != 0) {
+            if (debt.getFallDueOn().isBefore(getLocalDateTimeNow())) {
+                debt.setTotalDebt(debt.getTotalDebt().add(calculateLateFee(debt.getFallDueOn())));
+            }
+            debt.setLateFeeDebt(debt.getTotalDebt().subtract(debt.getRemainingDebt()));
         }
-        debt.setLateFeeDebt(debt.getTotalDebt().subtract(debt.getRemainingDebt()));
         return debt;
     }
 
